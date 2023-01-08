@@ -135,7 +135,6 @@ fastify.get("/quiz/:idQuiz", async (request, reply) => {
   if (quiz.Questions[0]) {
     const firstQuestionID = quiz.Questions[0].id || 0 //id della prima domanda
     let answers = await Submit.findAll({ fkQuestion: firstQuestionID }) //tutte le risposte riferite a quelle domande -> prendi solo i nomi univoci
-    
     quizResult.statistics = answers;
   }
 
@@ -144,6 +143,19 @@ fastify.get("/quiz/:idQuiz", async (request, reply) => {
   // prendi tutte le submissio e fai il conto delle risposte corrette in base al nome
 
   return quizResult;
+});
+
+fastify.get("/statistics/:idQuiz", async (request, reply) => {
+  const { idQuiz } = request.params;
+  let result = await sequelize.query(`SELECT sum((answer = correct)) as numCorrect,
+  (SELECT count(*) from Questions where fkQuiz = ${idQuiz}) as totQuestions,
+  name as namePlayer
+  from Submission INNER JOIN Questions ON fkQuestion = Questions.id
+  where fkQuiz = ${idQuiz}
+  GROUP by namePlayer;`)
+
+
+  return {statistics: result[0]};
 });
 
 // owner delle domande e risposte
