@@ -218,7 +218,6 @@ const start = async () => {
   await Question.create({ description: "test4?", answer1: "a1", answer2: "a2", answer3: "a3", answer4: "a4", correct: 2, fkQuiz: quiz0.id });
   await Submit.create({ answer: "1", name: "Marco", fkQuestion: firstQuestion.id });
   await Submit.create({ answer: "1", name: "Matteo", fkQuestion: firstQuestion.id });
-  await Submit.create({ answer: "1", name: "Giulio", fkQuestion: firstQuestion.id });
 
 
   try {
