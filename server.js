@@ -8,6 +8,7 @@ const sequelize = new Sequelize({
   storage: "./database.sqlite",
 });
 
+// campi oggetto Quiz
 const Quiz = sequelize.define(
   "Quiz",
   {
@@ -26,6 +27,7 @@ const Quiz = sequelize.define(
   }
 );
 
+// campi oggetto Question
 const Question = sequelize.define(
   "Question",
   {
@@ -74,6 +76,7 @@ const Question = sequelize.define(
   }
 );
 
+// campi oggetto risposta
 const Submit = sequelize.define(
   "Submit",
   {
@@ -125,6 +128,7 @@ fastify.get("/", async (request, reply) => {
   return { hello: "world" };
 });
 
+// richiesta get per avere il quiz
 fastify.get("/quiz/:idQuiz", async (request, reply) => {
   const { idQuiz } = request.params;
   const quiz = await Quiz.findByPk(idQuiz, { include: Question });
@@ -138,13 +142,10 @@ fastify.get("/quiz/:idQuiz", async (request, reply) => {
     quizResult.statistics = answers;
   }
 
-  //prendo tutte le answer
-
-  // prendi tutte le submissio e fai il conto delle risposte corrette in base al nome
-
   return quizResult;
 });
 
+// richiesta get che ritorna le staticstiche e conta su quante risposte hai indovinato
 fastify.get("/statistics/:idQuiz", async (request, reply) => {
   const { idQuiz } = request.params;
   let result = await sequelize.query(`SELECT sum((answer = correct)) as numCorrect,
@@ -165,6 +166,7 @@ fastify.put("/quiz/:name", async (request, reply) => {
   return quiz;
 });
 
+// richiesta put per la risposta
 fastify.put("/submission/:idQuestion/:name/:answer", async (request, reply) => {
   const { idQuestion, name, answer } = request.params;
   answerNumber = parseInt(answer);
@@ -176,12 +178,12 @@ fastify.put("/submission/:idQuestion/:name/:answer", async (request, reply) => {
 
   const question = await Question.findByPk(idQuestion);
   submitResult.isCorrect = question.correct === answerNumber;
-  // return {giusto o sbagliato, {risposta correta}};
-  // if (Question.findByPk === answer) return answer;
+
   return submitResult;
 
 });
 
+// richiesta post per salvare le domande e la risposta corretta
 fastify.post("/quiz/:idQuiz", async (request, reply) => {
   const { idQuiz } = request.params;
   const { description, answer1, answer2, answer3, answer4, correct } = request.body;
@@ -190,6 +192,7 @@ fastify.post("/quiz/:idQuiz", async (request, reply) => {
   return { status: "ok" };
 });
 
+// richiesta get che ritorna i quiz
 fastify.get("/quizes", async (request, reply) => {
   return Quiz.findAll({ include: Question });
 });
@@ -210,6 +213,8 @@ const start = async () => {
   await Quiz.sync({ force: true });
   await Question.sync({ force: true });
   await Submit.sync({ force: true });
+
+  //test
 
   const quiz0 = await Quiz.create({ nameOwner: "Matteo" });
   const firstQuestion = await Question.create({ description: "test?", answer1: "a1", answer2: "a2", answer3: "a3", answer4: "a4", correct: 2, fkQuiz: quiz0.id });
